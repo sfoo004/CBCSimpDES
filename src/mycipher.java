@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CBCSimpDES {
+public class mycipher {
 
     //Holds array positions permutations
     static int[] P10 = {3, 5, 2, 7, 4, 10, 1, 9, 8, 6};
@@ -109,9 +109,9 @@ public class CBCSimpDES {
             }
             CBC(intVector, binaryKey, p);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(CBCSimpDES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(mycipher.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(CBCSimpDES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(mycipher.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -128,10 +128,11 @@ public class CBCSimpDES {
     private static void CBC(byte[] intVec, byte[] binKey, byte[][] plainText) {
         boolean first = true;
         int xor;
+        //holds the xor Vector for next cipher block
         byte[] xorVec = new byte[8];
         byte[] xorArr = new byte[8];
+        //holds output from each cipher
         byte[][] output = new byte[EXIT][8];
-        int k = 0;
         //Generates the keys for simp Des
         keyGen(binKey);
         if (encrypt) {
@@ -156,12 +157,14 @@ public class CBCSimpDES {
         //decrypt
         } else {
             for (int i = 0; i < EXIT; i++) {
+                //first CBC will use the initial Vector
                 if (first) {
                     first = false;
                     xorArr = simpleDES(plainText[i]);
                     xor = (convertToInt(xorArr) ^ convertToInt(intVec));
                     xorVec = convertToByteArr(xor, 8);
                     output[i] = xorVec;
+                    //will use the previous xorVector or plainText as XOR
                 } else {
                     xorArr = simpleDES(plainText[i]);
                     xor = (convertToInt(xorArr) ^ convertToInt(plainText[i - 1]));
@@ -197,7 +200,7 @@ public class CBCSimpDES {
                 cipher[i] = swap[IPINVERSE[i] - 1];
             }
             return cipher;
-
+        //encryption -> plaintext
         } else {
             for (int i = 0; i < xor.length; i++) {
                 temp[i] = xor[IP[i] - 1];
@@ -228,13 +231,15 @@ public class CBCSimpDES {
         byte[] p4 = new byte[4];
         int xor;
         byte[] xorArr = new byte[4];
-
+        //get new half from f process
         byte[] newHalf = f(half[1], k);
         for (int i = 0; i < 4; i++) {
             p4[i] = newHalf[P4[i] - 1];
         }
+        //xor from first half and f 
         xor = convertToInt(half[0]) ^ convertToInt(p4);
         xorArr = convertToByteArr(xor, 4);
+        //combine the xor half with the second half of the original
         for (int i = 0; i < whole.length; i++) {
             if (i < 4) {
                 whole[i] = xorArr[i];
@@ -261,6 +266,7 @@ public class CBCSimpDES {
             ep[i] = half[EP[i] - 1];
         }
         xor = convertToInt(ep) ^ convertToInt(k);
+        //split array
         byte[][] xorArr = splitArr(convertToByteArr(xor, 8));
         //determine S0 and S1 from grid
         row = convertToInt(new byte[]{xorArr[0][0], xorArr[0][3]});
@@ -283,7 +289,7 @@ public class CBCSimpDES {
         for (int i = 0; i < P10.length; i++) {
             p10[i] = binKey[P10[i] - 1];
         }
-
+        //split array in half
         byte[][] half = splitArr(p10);
 
         half[0] = shift(half[0], 1);
@@ -489,7 +495,7 @@ public class CBCSimpDES {
             }
             bw.close();
         } catch (IOException ex) {
-            Logger.getLogger(CBCSimpDES.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(mycipher.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
